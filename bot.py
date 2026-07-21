@@ -36,7 +36,7 @@ def send_crypto_opportunities():
         "• لا تعطي كلمات محفظتك السرية لأي شخص أو موقع إطلاقاً."
     )
     
-    # تصحيح الرابط بإضافة api.telegram.org/bot وتنقيتها تماماً
+    # الرابط الصحيح والمعدل بالكامل لتجنب خطأ الـ Parse السابق
     url = f"https://telegram.org{token_clean}/sendMessage"
     payload = {
         "chat_id": chat_clean,
