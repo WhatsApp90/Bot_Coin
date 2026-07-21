@@ -1,7 +1,21 @@
 import os
 import time
 import requests
+import threading
+from flask import Flask
 
+# 1. إنشاء خادم ويب مصغر لإرضاء UptimeRobot
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "✅ البوت يعمل بنجاح في الخلفية!"
+
+def run_web_server():
+    # تشغيل السيرفر على المنفذ 8080 المعتمد في منصات الاستضافة
+    app.run(host='0.0.0.0', port=8080)
+
+# 2. وظيفة البوت الأساسية لإرسال الرسائل
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 CHAT_ID = os.environ.get("YOUR_CHAT_ID")
 
@@ -43,10 +57,17 @@ if __name__ == "__main__":
     if not TOKEN or not CHAT_ID:
         print("❌ خطأ: يرجى إضافة المتغيرات البيئية في إعدادات المنصة!")
     else:
-        print("🚀 البوت بدأ العمل بنجاح...")
-        # سيرسل الرسالة فوراً عند تشغيل السيرفر
+        print("🚀 البوت بدأ العمل...")
+        
+        # تشغيل خادم الويب في مسار جانبي (Thread) لكي لا يعطل البوت
+        server_thread = threading.Thread(target=run_web_server)
+        server_thread.daemon = True
+        server_thread.start()
+        
+        # إرسال الرسالة لتليجرام فوراً عند التشغيل
         send_crypto_opportunities()
         
-        # حلقة تكرار بسيطة لإبقاء السيرفر حياً ولا يتوقف على Railway
+        # حلقة التكرار لإبقاء السيرفر حياً
         while True:
-            time.sleep(3600)  # ينام الكود لمدة ساعة ثم يستمر في العمل
+            time.sleep(3600)
+        
