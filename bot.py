@@ -4,68 +4,80 @@ import requests
 import threading
 from flask import Flask
 
+# 1. إنشاء خادم ويب مصغر لإرضاء Render و UptimeRobot
 app = Flask('')
 
 @app.route('/')
 def home():
-    return "✅ البوت يعمل بنجاح في الخلفية!"
+    return "✅ بوت الأذكار الإسلامي يعمل بنجاح!"
 
 def run_web_server():
     app.run(host='0.0.0.0', port=8080)
 
+# 2. جلب المتغيرات البيئية
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 CHAT_ID = os.environ.get("YOUR_CHAT_ID")
 
-def send_crypto_opportunities():
-    token_clean = TOKEN.strip() if TOKEN else None
-    chat_clean = CHAT_ID.strip() if CHAT_ID else None
+def send_islamic_message(text_content):
+    if not TOKEN or not CHAT_ID:
+        print("❌ خطأ: المتغيرات غير موجودة في إعدادات Render!", flush=True)
+        return
 
-    message = (
-        "🌟 **مرحباً بك! إليك المواقع الآمنة والموثوقة لجمع العملات مجاناً اليوم:**\n\n"
-        "1️⃣ **CoinPayU**\n"
-        "🔗 الرابط: [اضغط هنا](https://coinpayu.com)\n"
-        "📝 طريقة الربح: مشاهدة إعلانات بسيطة وجمع ساتوشي (بيتكوين مجاني).\n\n"
-        "2️⃣ **FreeBitco.in**\n"
-        "🔗 الرابط: [اضغط هنا](https://freebitco.in)\n"
-        "📝 طريقة الربح: تدوير العجلة مجاناً كل ساعة للحصول على بيتكوين.\n\n"
-        "3️⃣ **FaucetPay**\n"
-        "🔗 الرابط: [اضغط هنا](https://faucetpay.io)\n"
-        "📝 نصيحة: افتح حساباً هنا أولاً، لأنه المحفظة المصغرة التي تستقبل عليها الأرباح من كل المواقع الأخرى.\n\n"
-        "⚠️ **تنبيه عمو المهم لحمايتك:**\n"
-        "• إذا طلب منك أي موقع دفع سنت واحد لتسحب، أغلقه فوراً فهو نصاب.\n"
-        "• لا تعطي كلمات محفظتك السرية لأي شخص أو موقع إطلاقاً."
-    )
-    
-    # الرابط الصحيح والمعدل بالكامل لتجنب خطأ الـ Parse السابق
+    # تنظيف المتغيرات من أي مسافات زائدة
+    token_clean = TOKEN.strip()
+    chat_clean = CHAT_ID.strip()
+
+    # الرابط الصحيح والمباشر لتليجرام
     url = f"https://telegram.org{token_clean}/sendMessage"
     payload = {
         "chat_id": chat_clean,
-        "text": message,
-        "parse_mode": "Markdown",
-        "disable_web_page_preview": True
+        "text": text_content,
+        "parse_mode": "Markdown"
     }
     
     try:
         response = requests.post(url, json=payload)
         if response.status_code == 200:
-            print("✅ [ناجح] تم إرسال قائمة الفرص بنجاح إلى تليجرام!", flush=True)
+            print("✅ [ناجح] تم إرسال الرسالة الإسلامية إلى تليجرام!", flush=True)
         else:
-            print(f"❌ [خطأ تليجرام] فشل الإرسال! الرمز: {response.status_code} - التفاصيل: {response.text}", flush=True)
+            print(f"❌ [خطأ] تليجرام رفض الإرسال. السبب: {response.text}", flush=True)
     except Exception as e:
-        print(f"❌ [خطأ اتصال] مشكلة في الاتصال بتليجرام: {e}", flush=True)
+        print(f"❌ [خطأ اتصال] فشل الاتصال بتليجرام: {e}", flush=True)
 
 if __name__ == "__main__":
-    if not TOKEN or not CHAT_ID:
-        print("❌ خطأ: يرجى إضافة المتغيرات البيئية في إعدادات المنصة!", flush=True)
-    else:
-        print("🚀 البوت بدأ العمل وفحص المتغيرات...", flush=True)
+    print("🚀 جاري بدء تشغيل بوت الأذكار الإسلامي...", flush=True)
+    
+    # تشغيل خادم الويب في الخلفية لضمان استقرار المنصة
+    server_thread = threading.Thread(target=run_web_server)
+    server_thread.daemon = True
+    server_thread.start()
+    
+    # 🌟 الرسالة الأولى والأساسية التي ستصلك فوراً عند اشتغال السيرفر
+    first_message = (
+        "✨ **مرحباً بك في بوت الأذكار الإسلامي التلقائي!** ✨\n\n"
+        "تم تشغيل البوت بنجاح على سيرفر Render العالمي.\n\n"
+        "قال الله تعالى: 《الَّذِينَ آمَنُوا وَتَطْمَئِنُّ قُلُوبُهُم بِذِكْرِ اللَّهِ ۗ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ》\n\n"
+        "🤍 البوت سيبدأ الآن بإرسال تذكير وأذكار لك بشكل دوري تلقائياً."
+    )
+    
+    # إرسال الرسالة الفورية
+    send_islamic_message(first_message)
+    
+    # قائمة بأذكار متنوعة يرسلها البوت كل ساعة لإبقاء السيرفر حياً
+    azkar_list = [
+        "🌸 سبحان الله وبحمده، سبحان الله العظيم.",
+        "✨ لا إله إلا أنت سبحانك إني كنت من الظالمين.",
+        "🤍 أستغفر الله العظيم وأتوب إليه.",
+        "اللهم صلِّ وسلم وبارك على نبينا محمد وعلى آله وصحبه أجمعين."
+    ]
+    
+    index = 0
+    while True:
+        # ينام الكود لمدة ساعة (3600 ثانية) ثم يرسل الذكر التالي
+        time.sleep(3600)
+        reminder = f"🕌 **تذكير بالذكر الصباحي/المسائي:**\n\n{azkar_list[index]}"
+        send_islamic_message(reminder)
         
-        server_thread = threading.Thread(target=run_web_server)
-        server_thread.daemon = True
-        server_thread.start()
+        # الانتقال للذكر التالي في القائمة
+        index = (index + 1) % len(azkar_list)
         
-        while True:
-            send_crypto_opportunities()
-            print("💤 البوت في وضع الانتظار لمدة دقيقة...", flush=True)
-            time.sleep(60)
-            
